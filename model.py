@@ -15,11 +15,11 @@ class OCR(nn.Module):
         self.conv3b = nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1, padding=1)
         self.pooling = nn.MaxPool2d(kernel_size=2,stride=2)
         self.dropout = nn.Dropout(dropout)
-        self.flatten = torch.flatten
         self.dense1 = nn.LazyLinear(256)
         self.dense2 = nn.LazyLinear(11)#10 là số chữ số + 1 background
         self.relu = nn.ReLU()
     def forward(self, x):
+        batch_size = x.shape[0]
         conv = self.conv1a(x)
         conv = self.conv1b(conv)
         conv = self.pooling(conv)
@@ -29,7 +29,7 @@ class OCR(nn.Module):
         conv = self.conv3a(conv)
         conv = self.conv3b(conv)
         conv = self.pooling(conv)
-        features = conv.flatten()
+        features = conv.view(batch_size,-1)
         features = self.dense1(features)
         features = self.relu(features)
         features = self.dense2(features)
